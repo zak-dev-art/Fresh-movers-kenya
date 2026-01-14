@@ -15,30 +15,30 @@ import Package from "./pages/Packaging";
 // Context
 import { RequestProvider } from "./context/RequestContext";
 
-// function App() {
-//   return (
-//     <RequestProvider>
-//       <Router>
-//         <Routes>
-//           {/* Main Pages */}
-//           <Route path="/" element={<Home />} />
-//           <Route path="/dashboard" element={<Dashboard />} />
+function App() {
+  return (
+    <RequestProvider>
+      <Router>
+        <Routes>
+          {/* Main Pages */}
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
-//           {/* Truck Requests */}
-//           <Route path="/create-request" element={<CreateRequest />} />
-//           <Route path="/view-requests" element={<ViewRequests />} />
-//           <Route path="/manage-trucks" element={<ManageTrucks />} />
+          {/* Truck Requests */}
+          <Route path="/create-request" element={<CreateRequest />} />
+          <Route path="/view-requests" element={<ViewRequests />} />
+          <Route path="/manage-trucks" element={<ManageTrucks />} />
 
-//           {/* Subscription & Notifications */}
-//           <Route path="/subscription-plan" element={<SubscriptionPlan />} />
-//           <Route path="/notifications" element={<Notification />} />
+          {/* Subscription & Notifications */}
+          <Route path="/subscription-plan" element={<SubscriptionPlan />} />
+          <Route path="/notifications" element={<Notification />} />
 
-//           {/* After-Sale Packaging Service */}
-//           <Route path="/packaging" element={<Package />} />
-//         </Routes>
-//       </Router>
-//     </RequestProvider>
-//   );
-// }
+          {/* After-Sale Packaging Service */}
+          <Route path="/packaging" element={<Package />} />
+        </Routes>
+      </Router>
+    </RequestProvider>
+  );
+}
 
 // export default App;
