@@ -58,6 +58,6 @@ All endpoints remain the same:
 - `DELETE /api/subscriptions/{sub_id}` - Delete subscription
 - `POST /api/packaging/` - Create packaging request
 
-## Frontend Compatibility
+## Frontend Compatibility.
 
 The frontend should work without any changes as all API endpoints and response formats remain identical.
