@@ -31,7 +31,10 @@ function App() {
           <Route path="/manage-trucks" element={<ManageTrucks />} />
 
          
-          
+          {/* Subscription & Notifications */}
+          <Route path="/subscription-plan" element={<SubscriptionPlan />} />
+          <Route path="/notifications" element={<Notification />} />
+
           
           {/* After-Sale Packaging Service */}
           <Route path="/packaging" element={<Package />} />
