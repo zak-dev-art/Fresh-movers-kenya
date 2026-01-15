@@ -20,10 +20,8 @@ function App() {
     <RequestProvider>
       <Router>
         <Routes>
-          {/* Main Pages */}
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-
+          
+          
           {/* Truck Requests */}
           <Route path="/create-request" element={<CreateRequest />} />
           <Route path="/view-requests" element={<ViewRequests />} />
