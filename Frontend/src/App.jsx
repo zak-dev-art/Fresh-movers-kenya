@@ -25,11 +25,8 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
 
           
-          {/* Truck Requests */}
-          <Route path="/create-request" element={<CreateRequest />} />
-          <Route path="/view-requests" element={<ViewRequests />} />
-          <Route path="/manage-trucks" element={<ManageTrucks />} />
-
+         
+         
           {/* Subscription & Notifications */}
           <Route path="/subscription-plan" element={<SubscriptionPlan />} />
           <Route path="/notifications" element={<Notification />} />
