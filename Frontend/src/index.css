@@ -20,7 +20,16 @@
 }
 
 
-
+.card-button {
+  background-color: white;
+  color: black;
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
 .card-button:hover {
   transform: translateY(-5px);
