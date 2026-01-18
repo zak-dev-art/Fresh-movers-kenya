@@ -9,3 +9,4 @@ fastapi-cors
 email-validator
 python-jose[cryptography]
 passlib[bcrypt]
+psycopg2-binary

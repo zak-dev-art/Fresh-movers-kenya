@@ -40,51 +40,123 @@ function Dashboard() {
   const cardStyle = {
     backgroundColor: "white",
     color: "black",
-    padding: "1.5rem",
-    borderRadius: "12px",
+    padding: "2rem",
+    borderRadius: "15px",
     textAlign: "center",
     textDecoration: "none",
-    boxShadow: "0 6px 15px rgba(0,0,0,0.1)",
-    transition: "transform 0.2s ease",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+    transition: "all 0.3s ease",
     display: "block",
-    marginBottom: "1rem"
+    marginBottom: "1.5rem",
+    border: "2px solid transparent",
+    position: "relative",
+    overflow: "hidden"
+  };
+
+  const cardHoverStyle = {
+    transform: "translateY(-8px)",
+    boxShadow: "0 15px 35px rgba(0,0,0,0.2)",
+    borderColor: "#3498db"
+  };
+
+  const titleStyle = {
+    fontSize: "1.5rem",
+    fontWeight: "bold",
+    marginBottom: "0.8rem",
+    color: "#2c3e50"
+  };
+
+  const descriptionStyle = {
+    fontSize: "1rem",
+    color: "#7f8c8d",
+    lineHeight: "1.4"
+  };
+
+  const containerStyle = {
+    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    minHeight: "100vh",
+    padding: "3rem 2rem"
+  };
+
+  const gridStyle = {
+    maxWidth: "800px",
+    margin: "0 auto",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+    gap: "2rem"
   };
 
   return (
-    <div style={{ backgroundColor: "#34495e", minHeight: "100vh", padding: "2rem" }}>
-      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+    <div style={containerStyle}>
+      <div style={gridStyle}>
         {loading ? (
-          <p style={{ color: "white", textAlign: "center" }}>Loading dashboard...</p>
+          <p style={{ color: "white", textAlign: "center", fontSize: "1.2rem" }}>Loading dashboard...</p>
         ) : (
           <>
-            <Link to="/create-request" style={cardStyle}>
-              <h3>Order Truck</h3>
-              <p>Book a cargo truck for your goods</p>
+            <Link 
+              to="/create-request" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🚛</div>
+              <h3 style={titleStyle}>Order Truck</h3>
+              <p style={descriptionStyle}>Book a cargo truck for your goods</p>
             </Link>
 
-            <Link to="/view-requests" style={cardStyle}>
-              <h3>View Requests</h3>
-              <p>Total: {stats.totalRequests}, Pending: {stats.pendingRequests}</p>
+            <Link 
+              to="/view-requests" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
+              <h3 style={titleStyle}>View Requests</h3>
+              <p style={descriptionStyle}>Total: {stats.totalRequests}, Pending: {stats.pendingRequests}</p>
             </Link>
 
-            <Link to="/subscription-plan" style={cardStyle}>
-              <h3>Subscription Plan</h3>
-              <p>Current: {stats.subscription}</p>
+            <Link 
+              to="/subscription-plan" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>💎</div>
+              <h3 style={titleStyle}>Subscription Plan</h3>
+              <p style={descriptionStyle}>Current: {stats.subscription}</p>
             </Link>
 
-            <Link to="/notifications" style={cardStyle}>
-              <h3>Notifications</h3>
-              <p>Check latest alerts from couriers</p>
+            <Link 
+              to="/notifications" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔔</div>
+              <h3 style={titleStyle}>Notifications</h3>
+              <p style={descriptionStyle}>Check latest alerts from couriers</p>
             </Link>
 
-            <Link to="/packaging" style={cardStyle}>
-              <h3>Packaging</h3>
-              <p>Book after-sale packaging services</p>
+            <Link 
+              to="/packaging" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📦</div>
+              <h3 style={titleStyle}>Packaging</h3>
+              <p style={descriptionStyle}>Book after-sale packaging services</p>
             </Link>
 
-            <Link to="/manage-trucks" style={cardStyle}>
-              <h3>Manage Trucks</h3>
-              <p>Total Trucks: {stats.trucks}</p>
+            <Link 
+              to="/manage-trucks" 
+              style={cardStyle}
+              onMouseEnter={(e) => Object.assign(e.target.style, cardHoverStyle)}
+              onMouseLeave={(e) => Object.assign(e.target.style, cardStyle)}
+            >
+              <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🔧</div>
+              <h3 style={titleStyle}>Manage Trucks</h3>
+              <p style={descriptionStyle}>Total Trucks: {stats.trucks}</p>
             </Link>
           </>
         )}
