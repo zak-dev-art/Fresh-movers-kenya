@@ -41,7 +41,10 @@ function Dashboard() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userUsername");
+    localStorage.removeItem("rememberedUser");
     navigate("/");
   };
 

@@ -3,14 +3,22 @@ import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true); // Start with Sign In
-  const [registeredUsers, setRegisteredUsers] = useState([]);
+  const [isLogin, setIsLogin] = useState(true);
+  const [rememberedUser, setRememberedUser] = useState(null);
 
-  // Load registered users from localStorage on component mount
+  // Check for remembered user on component mount
   useEffect(() => {
-    const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
-    setRegisteredUsers(users);
-  }, []);
+    const savedUser = localStorage.getItem("rememberedUser");
+    if (savedUser) {
+      const user = JSON.parse(savedUser);
+      setRememberedUser(user);
+      // Auto-login if user is remembered
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userName", user.name);
+      localStorage.setItem("userUsername", user.username);
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex">
@@ -97,14 +105,11 @@ function Home() {
           {isLogin ? (
             <LoginForm 
               navigate={navigate} 
-              registeredUsers={registeredUsers}
               setIsLogin={setIsLogin}
             />
           ) : (
             <SignupForm 
               navigate={navigate} 
-              registeredUsers={registeredUsers}
-              setRegisteredUsers={setRegisteredUsers}
               setIsLogin={setIsLogin}
             />
           )}
@@ -114,31 +119,39 @@ function Home() {
   );
 }
 
-function LoginForm({ navigate, registeredUsers, setIsLogin }) {
-  const [email, setEmail] = useState("");
+function LoginForm({ navigate, setIsLogin }) {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const handleLogin = () => {
-    if (!email.trim() || !password.trim()) {
+    if (!username.trim() || !password.trim()) {
       alert("Please fill in all fields");
       return;
     }
 
-    // Check if user exists and password matches
-    const user = registeredUsers.find(u => u.email === email && u.password === password);
+    // Check localStorage for registered users
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+    const user = registeredUsers.find(u => u.username === username && u.password === password);
     
     if (!user) {
-      alert("Invalid email or password. Please sign up if you don't have an account.");
-      setIsLogin(false); // Redirect to signup
+      alert("Invalid username or password. Please sign up if you don't have an account.");
+      setIsLogin(false);
       return;
     }
 
     setLoading(true);
     setTimeout(() => {
       localStorage.setItem("userId", user.id);
-      localStorage.setItem("userEmail", user.email);
       localStorage.setItem("userName", user.name);
+      localStorage.setItem("userUsername", user.username);
+      
+      // Remember user if checkbox is checked
+      if (rememberMe) {
+        localStorage.setItem("rememberedUser", JSON.stringify(user));
+      }
+      
       navigate("/dashboard");
       setLoading(false);
     }, 1500);
@@ -154,14 +167,14 @@ function LoginForm({ navigate, registeredUsers, setIsLogin }) {
       <form className="space-y-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Email address
+            Username
           </label>
           <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-            placeholder="Enter your email"
+            placeholder="Enter your username"
           />
         </div>
 
@@ -180,7 +193,12 @@ function LoginForm({ navigate, registeredUsers, setIsLogin }) {
 
         <div className="flex items-center justify-between">
           <label className="flex items-center">
-            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <input 
+              type="checkbox" 
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+            />
             <span className="ml-2 text-sm text-gray-600">Remember me</span>
           </label>
           <button
@@ -212,10 +230,11 @@ function LoginForm({ navigate, registeredUsers, setIsLogin }) {
   );
 }
 
-function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin }) {
+function SignupForm({ navigate, setIsLogin }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: ""
@@ -227,7 +246,7 @@ function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin 
   };
 
   const handleSignup = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.password) {
+    if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password) {
       alert("Please fill in all fields");
       return;
     }
@@ -237,7 +256,14 @@ function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin 
       return;
     }
 
-    // Check if user already exists
+    const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+    
+    // Check if username or email already exists
+    if (registeredUsers.find(u => u.username === formData.username)) {
+      alert("Username already taken. Please choose a different username.");
+      return;
+    }
+    
     if (registeredUsers.find(u => u.email === formData.email)) {
       alert("User with this email already exists. Please sign in.");
       setIsLogin(true);
@@ -250,17 +276,23 @@ function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin 
       const newUser = {
         id: Date.now(),
         name: `${formData.firstName} ${formData.lastName}`,
+        username: formData.username,
         email: formData.email,
         password: formData.password
       };
 
       // Save to localStorage
       const updatedUsers = [...registeredUsers, newUser];
-      setRegisteredUsers(updatedUsers);
       localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
+      
+      // Auto-remember the new user
+      localStorage.setItem("rememberedUser", JSON.stringify(newUser));
+      localStorage.setItem("userId", newUser.id);
+      localStorage.setItem("userName", newUser.name);
+      localStorage.setItem("userUsername", newUser.username);
 
-      alert("Account created successfully! You can now sign in.");
-      setIsLogin(true);
+      alert("Account created successfully! You are now logged in.");
+      navigate("/dashboard");
       setLoading(false);
     }, 1500);
   };
@@ -300,6 +332,20 @@ function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin 
               placeholder="Doe"
             />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Username
+          </label>
+          <input
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            placeholder="Choose a username"
+          />
         </div>
 
         <div>

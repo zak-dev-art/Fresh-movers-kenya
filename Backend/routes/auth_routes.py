@@ -13,12 +13,16 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user_data.email).first():
         raise HTTPException(status_code=400, detail="User already exists")
     
+    if db.query(User).filter(User.username == user_data.username).first():
+        raise HTTPException(status_code=400, detail="Username already taken")
+    
     # Validate role
     if user_data.role not in Role._value2member_map_:
         raise HTTPException(status_code=400, detail=f"Invalid role '{user_data.role}'")
     
     # Create user
     user = User(
+        username=user_data.username,
         full_name=user_data.full_name,
         email=user_data.email,
         role=Role(user_data.role)
@@ -32,10 +36,10 @@ def register(user_data: UserRegister, db: Session = Depends(get_db)):
 
 @auth_router.post("/login")
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == user_data.email).first()
+    user = db.query(User).filter(User.username == user_data.username).first()
     
     if not user or not user.check_password(user_data.password):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        raise HTTPException(status_code=401, detail="Invalid username or password")
     
     access_token = create_access_token(data={"sub": user.id, "role": user.role.value})
     
@@ -44,6 +48,7 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": {
             "id": user.id,
+            "username": user.username,
             "full_name": user.full_name,
             "email": user.email,
             "role": user.role.value
@@ -54,6 +59,7 @@ def login(user_data: UserLogin, db: Session = Depends(get_db)):
 def get_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
+        "username": current_user.username,
         "full_name": current_user.full_name,
         "email": current_user.email,
         "role": current_user.role.value

@@ -4,17 +4,19 @@ from datetime import datetime
 
 # User schemas
 class UserRegister(BaseModel):
+    username: str
     full_name: str
     email: EmailStr
     password: str
     role: Optional[str] = "customer"
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    username: str
     password: str
 
 class UserResponse(BaseModel):
     id: int
+    username: str
     full_name: str
     email: str
     role: str
