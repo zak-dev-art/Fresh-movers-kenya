@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(false); // Start with signup
-  const [isRegistered, setIsRegistered] = useState(false);
+  const [isLogin, setIsLogin] = useState(true); // Start with Sign In
+  const [registeredUsers, setRegisteredUsers] = useState([]);
+
+  // Load registered users from localStorage on component mount
+  useEffect(() => {
+    const users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+    setRegisteredUsers(users);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex">
@@ -68,13 +74,10 @@ function Home() {
           <div className="bg-gray-100 p-1 rounded-lg mb-8 flex">
             <button
               onClick={() => setIsLogin(true)}
-              disabled={!isRegistered}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 isLogin 
                   ? 'bg-white text-gray-900 shadow-sm' 
-                  : isRegistered 
-                    ? 'text-gray-500 hover:text-gray-700'
-                    : 'text-gray-400 cursor-not-allowed'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               Sign In
@@ -91,18 +94,19 @@ function Home() {
             </button>
           </div>
 
-          {!isRegistered && isLogin && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <p className="text-yellow-800 text-sm">
-                Please sign up first before you can log in.
-              </p>
-            </div>
-          )}
-
           {isLogin ? (
-            <LoginForm navigate={navigate} disabled={!isRegistered} />
+            <LoginForm 
+              navigate={navigate} 
+              registeredUsers={registeredUsers}
+              setIsLogin={setIsLogin}
+            />
           ) : (
-            <SignupForm navigate={navigate} setIsRegistered={setIsRegistered} setIsLogin={setIsLogin} />
+            <SignupForm 
+              navigate={navigate} 
+              registeredUsers={registeredUsers}
+              setRegisteredUsers={setRegisteredUsers}
+              setIsLogin={setIsLogin}
+            />
           )}
         </div>
       </div>
@@ -110,27 +114,31 @@ function Home() {
   );
 }
 
-function LoginForm({ navigate, disabled }) {
+function LoginForm({ navigate, registeredUsers, setIsLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
-    if (disabled) {
-      alert("Please sign up first!");
-      return;
-    }
-
     if (!email.trim() || !password.trim()) {
       alert("Please fill in all fields");
       return;
     }
 
+    // Check if user exists and password matches
+    const user = registeredUsers.find(u => u.email === email && u.password === password);
+    
+    if (!user) {
+      alert("Invalid email or password. Please sign up if you don't have an account.");
+      setIsLogin(false); // Redirect to signup
+      return;
+    }
+
     setLoading(true);
     setTimeout(() => {
-      localStorage.setItem("userId", 1);
-      localStorage.setItem("userEmail", email);
-      localStorage.setItem("userName", email.split('@')[0]);
+      localStorage.setItem("userId", user.id);
+      localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("userName", user.name);
       navigate("/dashboard");
       setLoading(false);
     }, 1500);
@@ -152,10 +160,7 @@ function LoginForm({ navigate, disabled }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            disabled={disabled}
-            className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-              disabled ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             placeholder="Enter your email"
           />
         </div>
@@ -168,23 +173,30 @@ function LoginForm({ navigate, disabled }) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            disabled={disabled}
-            className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
-              disabled ? 'bg-gray-100 cursor-not-allowed' : ''
-            }`}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             placeholder="Enter your password"
           />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <label className="flex items-center">
+            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <span className="ml-2 text-sm text-gray-600">Remember me</span>
+          </label>
+          <button
+            type="button"
+            onClick={() => setIsLogin(false)}
+            className="text-sm text-blue-600 hover:text-blue-500"
+          >
+            Don't have an account? Sign up
+          </button>
         </div>
 
         <button
           type="button"
           onClick={handleLogin}
-          disabled={loading || disabled}
-          className={`w-full py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
-            disabled 
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
-          }`}
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
         >
           {loading ? (
             <>
@@ -200,7 +212,7 @@ function LoginForm({ navigate, disabled }) {
   );
 }
 
-function SignupForm({ navigate, setIsRegistered, setIsLogin }) {
+function SignupForm({ navigate, registeredUsers, setRegisteredUsers, setIsLogin }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -225,9 +237,28 @@ function SignupForm({ navigate, setIsRegistered, setIsLogin }) {
       return;
     }
 
+    // Check if user already exists
+    if (registeredUsers.find(u => u.email === formData.email)) {
+      alert("User with this email already exists. Please sign in.");
+      setIsLogin(true);
+      return;
+    }
+
     setLoading(true);
     setTimeout(() => {
-      setIsRegistered(true);
+      // Create new user
+      const newUser = {
+        id: Date.now(),
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password
+      };
+
+      // Save to localStorage
+      const updatedUsers = [...registeredUsers, newUser];
+      setRegisteredUsers(updatedUsers);
+      localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
+
       alert("Account created successfully! You can now sign in.");
       setIsLogin(true);
       setLoading(false);
@@ -328,6 +359,16 @@ function SignupForm({ navigate, setIsRegistered, setIsLogin }) {
             "Create account"
           )}
         </button>
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => setIsLogin(true)}
+            className="text-sm text-blue-600 hover:text-blue-500"
+          >
+            Already have an account? Sign in
+          </button>
+        </div>
       </form>
     </div>
   );
