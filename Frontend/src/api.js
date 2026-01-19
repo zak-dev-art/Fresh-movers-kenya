@@ -3,7 +3,7 @@ import axios from "axios";
 const isVercel = window.location.hostname.includes("vercel.app");
 
 export const api = axios.create({
-  baseURL: isVercel ? "/api" : "http://127.0.0.1:5000/api",
+  baseURL: "https://fresh-movers-kenya-9y5l.onrender.com/api",
   headers: {
     "Content-Type": "application/json"
   },

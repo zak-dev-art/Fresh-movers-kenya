@@ -3,12 +3,21 @@ import { useNavigate } from "react-router-dom";
 
 function Home() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false); // Start with signup
+  const [isRegistered, setIsRegistered] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex">
-      {/* Left Side - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-12 flex-col justify-between text-white">
+      {/* Left Side - Truck Background */}
+      <div 
+        className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between text-white relative"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2069&q=80')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div>
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
@@ -59,10 +68,13 @@ function Home() {
           <div className="bg-gray-100 p-1 rounded-lg mb-8 flex">
             <button
               onClick={() => setIsLogin(true)}
+              disabled={!isRegistered}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
                 isLogin 
                   ? 'bg-white text-gray-900 shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-700'
+                  : isRegistered 
+                    ? 'text-gray-500 hover:text-gray-700'
+                    : 'text-gray-400 cursor-not-allowed'
               }`}
             >
               Sign In
@@ -79,19 +91,36 @@ function Home() {
             </button>
           </div>
 
-          {isLogin ? <LoginForm navigate={navigate} /> : <SignupForm navigate={navigate} />}
+          {!isRegistered && isLogin && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <p className="text-yellow-800 text-sm">
+                Please sign up first before you can log in.
+              </p>
+            </div>
+          )}
+
+          {isLogin ? (
+            <LoginForm navigate={navigate} disabled={!isRegistered} />
+          ) : (
+            <SignupForm navigate={navigate} setIsRegistered={setIsRegistered} setIsLogin={setIsLogin} />
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function LoginForm({ navigate }) {
+function LoginForm({ navigate, disabled }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
+    if (disabled) {
+      alert("Please sign up first!");
+      return;
+    }
+
     if (!email.trim() || !password.trim()) {
       alert("Please fill in all fields");
       return;
@@ -123,7 +152,10 @@ function LoginForm({ navigate }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            disabled={disabled}
+            className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
+              disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+            }`}
             placeholder="Enter your email"
           />
         </div>
@@ -136,26 +168,23 @@ function LoginForm({ navigate }) {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+            disabled={disabled}
+            className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all ${
+              disabled ? 'bg-gray-100 cursor-not-allowed' : ''
+            }`}
             placeholder="Enter your password"
           />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <label className="flex items-center">
-            <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-            <span className="ml-2 text-sm text-gray-600">Remember me</span>
-          </label>
-          <a href="#" className="text-sm text-blue-600 hover:text-blue-500">
-            Forgot password?
-          </a>
         </div>
 
         <button
           type="button"
           onClick={handleLogin}
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
+          disabled={loading || disabled}
+          className={`w-full py-3 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center ${
+            disabled 
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
+          }`}
         >
           {loading ? (
             <>
@@ -171,7 +200,7 @@ function LoginForm({ navigate }) {
   );
 }
 
-function SignupForm({ navigate }) {
+function SignupForm({ navigate, setIsRegistered, setIsLogin }) {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -198,10 +227,9 @@ function SignupForm({ navigate }) {
 
     setLoading(true);
     setTimeout(() => {
-      localStorage.setItem("userId", 1);
-      localStorage.setItem("userEmail", formData.email);
-      localStorage.setItem("userName", `${formData.firstName} ${formData.lastName}`);
-      navigate("/dashboard");
+      setIsRegistered(true);
+      alert("Account created successfully! You can now sign in.");
+      setIsLogin(true);
       setLoading(false);
     }, 1500);
   };
@@ -283,13 +311,6 @@ function SignupForm({ navigate }) {
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
             placeholder="Confirm your password"
           />
-        </div>
-
-        <div className="flex items-center">
-          <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-          <span className="ml-2 text-sm text-gray-600">
-            I agree to the <a href="#" className="text-blue-600 hover:text-blue-500">Terms of Service</a> and <a href="#" className="text-blue-600 hover:text-blue-500">Privacy Policy</a>
-          </span>
         </div>
 
         <button
