@@ -36,8 +36,15 @@ function CreateRequest() {
       return;
     }
 
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Please log in to place an order");
+      navigate("/");
+      return;
+    }
+
     const payload = {
-      customer_id: 1,
+      customer_id: parseInt(userId),
       goods: goodsType,
       weight_kg: parseFloat(weight),
       pickup_location: pickup,
