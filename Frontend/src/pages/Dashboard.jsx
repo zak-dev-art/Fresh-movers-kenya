@@ -10,6 +10,18 @@ function Dashboard() {
 
   const userId = localStorage.getItem("userId") || 1;
   const userName = localStorage.getItem("userName") || "User";
+  const userRole = localStorage.getItem("userRole") || "customer";
+  const userAccountType = localStorage.getItem("userAccountType") || "individual";
+
+  const getRoleDisplayName = (role) => {
+    const roleNames = {
+      customer: "Customer",
+      farmer: "Farmer",
+      driver: "Driver",
+      logistics_manager: "Logistics Manager"
+    };
+    return roleNames[role] || "User";
+  };
 
   const fetchStats = async () => {
     try {
@@ -44,6 +56,8 @@ function Dashboard() {
     localStorage.removeItem("userId");
     localStorage.removeItem("userName");
     localStorage.removeItem("userUsername");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("userAccountType");
     localStorage.removeItem("rememberedUser");
     navigate("/");
   };
@@ -89,7 +103,7 @@ function Dashboard() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               <div className="hidden sm:block text-right">
                 <p className="text-sm font-medium text-gray-900">Welcome, {userName}</p>
-                <p className="text-xs text-gray-500">Logistics Manager</p>
+                <p className="text-xs text-gray-500">{getRoleDisplayName(userRole)} • {userAccountType}</p>
               </div>
               <button
                 onClick={handleLogout}

@@ -16,6 +16,8 @@ function Home() {
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userUsername", user.username);
+      localStorage.setItem("userRole", user.role || "customer");
+      localStorage.setItem("userAccountType", user.accountType || "individual");
       navigate("/dashboard");
     }
   }, [navigate]);
@@ -146,6 +148,8 @@ function LoginForm({ navigate, setIsLogin }) {
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userName", user.name);
       localStorage.setItem("userUsername", user.username);
+      localStorage.setItem("userRole", user.role || "customer");
+      localStorage.setItem("userAccountType", user.accountType || "individual");
       
       // Remember user if checkbox is checked
       if (rememberMe) {
@@ -237,7 +241,9 @@ function SignupForm({ navigate, setIsLogin }) {
     username: "",
     email: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
+    role: "customer",
+    accountType: "individual"
   });
   const [loading, setLoading] = useState(false);
 
@@ -245,9 +251,18 @@ function SignupForm({ navigate, setIsLogin }) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateName = (name) => {
+    return /^[a-zA-Z\s]+$/.test(name);
+  };
+
   const handleSignup = () => {
     if (!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password) {
       alert("Please fill in all fields");
+      return;
+    }
+    
+    if (!validateName(formData.firstName) || !validateName(formData.lastName)) {
+      alert("Names should only contain letters and spaces");
       return;
     }
     
@@ -258,7 +273,6 @@ function SignupForm({ navigate, setIsLogin }) {
 
     const registeredUsers = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
     
-    // Check if username or email already exists
     if (registeredUsers.find(u => u.username === formData.username)) {
       alert("Username already taken. Please choose a different username.");
       return;
@@ -272,24 +286,25 @@ function SignupForm({ navigate, setIsLogin }) {
 
     setLoading(true);
     setTimeout(() => {
-      // Create new user
       const newUser = {
         id: Date.now(),
         name: `${formData.firstName} ${formData.lastName}`,
         username: formData.username,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        role: formData.role,
+        accountType: formData.accountType
       };
 
-      // Save to localStorage
       const updatedUsers = [...registeredUsers, newUser];
       localStorage.setItem("registeredUsers", JSON.stringify(updatedUsers));
       
-      // Auto-remember the new user
       localStorage.setItem("rememberedUser", JSON.stringify(newUser));
       localStorage.setItem("userId", newUser.id);
       localStorage.setItem("userName", newUser.name);
       localStorage.setItem("userUsername", newUser.username);
+      localStorage.setItem("userRole", newUser.role);
+      localStorage.setItem("userAccountType", newUser.accountType);
 
       alert("Account created successfully! You are now logged in.");
       navigate("/dashboard");
@@ -305,6 +320,38 @@ function SignupForm({ navigate, setIsLogin }) {
       </div>
 
       <form className="space-y-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Account Type
+          </label>
+          <select
+            name="accountType"
+            value={formData.accountType}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          >
+            <option value="individual">Individual</option>
+            <option value="company">Company</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            User Role
+          </label>
+          <select
+            name="role"
+            value={formData.role}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          >
+            <option value="customer">Customer</option>
+            <option value="farmer">Farmer</option>
+            <option value="driver">Driver</option>
+            <option value="logistics_manager">Logistics Manager</option>
+          </select>
+        </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -315,6 +362,7 @@ function SignupForm({ navigate, setIsLogin }) {
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              pattern="[a-zA-Z\s]+"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               placeholder="John"
             />
@@ -328,6 +376,7 @@ function SignupForm({ navigate, setIsLogin }) {
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              pattern="[a-zA-Z\s]+"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
               placeholder="Doe"
             />
