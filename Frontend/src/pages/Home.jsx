@@ -4,14 +4,12 @@ import { useNavigate } from "react-router-dom";
 function Home() {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const [rememberedUser, setRememberedUser] = useState(null);
 
   // Check for remembered user on component mount
   useEffect(() => {
     const savedUser = localStorage.getItem("rememberedUser");
     if (savedUser) {
       const user = JSON.parse(savedUser);
-      setRememberedUser(user);
       // Auto-login if user is remembered
       localStorage.setItem("userId", user.id);
       localStorage.setItem("userName", user.name);
