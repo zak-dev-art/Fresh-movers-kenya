@@ -15,12 +15,42 @@ function Dashboard() {
 
   const getRoleDisplayName = (role) => {
     const roleNames = {
-      customer: "Customer",
-      farmer: "Farmer",
+      customer: "Customer/Farmer",
       driver: "Driver",
       logistics_manager: "Logistics Manager"
     };
     return roleNames[role] || "User";
+  };
+
+  const getNavigationItems = (role) => {
+    const baseItems = [
+      { name: "Dashboard", path: "/dashboard", icon: "🏠", active: true, roles: ["customer", "driver", "logistics_manager"] }
+    ];
+
+    const roleBasedItems = {
+      customer: [
+        { name: "Order Truck", path: "/create-request", icon: "🚛" },
+        { name: "View Requests", path: "/view-requests", icon: "📋" },
+        { name: "Subscription", path: "/subscription-plan", icon: "💎" },
+        { name: "Notifications", path: "/notifications", icon: "🔔" },
+        { name: "Packaging", path: "/packaging", icon: "📦" }
+      ],
+      driver: [
+        { name: "My Trucks", path: "/manage-trucks", icon: "🚛" },
+        { name: "View Requests", path: "/view-requests", icon: "📋" },
+        { name: "Notifications", path: "/notifications", icon: "🔔" }
+      ],
+      logistics_manager: [
+        { name: "Order Truck", path: "/create-request", icon: "🚛" },
+        { name: "View Requests", path: "/view-requests", icon: "📋" },
+        { name: "Manage Trucks", path: "/manage-trucks", icon: "🔧" },
+        { name: "Subscription", path: "/subscription-plan", icon: "💎" },
+        { name: "Notifications", path: "/notifications", icon: "🔔" },
+        { name: "Packaging", path: "/packaging", icon: "📦" }
+      ]
+    };
+
+    return [...baseItems, ...(roleBasedItems[role] || [])];
   };
 
   const fetchStats = async () => {
@@ -62,15 +92,7 @@ function Dashboard() {
     navigate("/");
   };
 
-  const navigationItems = [
-    { name: "Dashboard", path: "/dashboard", icon: "🏠", active: true },
-    { name: "Order Truck", path: "/create-request", icon: "🚛" },
-    { name: "View Requests", path: "/view-requests", icon: "📋" },
-    { name: "Manage Trucks", path: "/manage-trucks", icon: "🔧" },
-    { name: "Subscription", path: "/subscription-plan", icon: "💎" },
-    { name: "Notifications", path: "/notifications", icon: "🔔" },
-    { name: "Packaging", path: "/packaging", icon: "📦" },
-  ];
+  const navigationItems = getNavigationItems(userRole);
 
   const quickStats = [
     { title: "Total Requests", value: stats.totalRequests, icon: "📊", color: "bg-blue-500" },
@@ -192,46 +214,118 @@ function Dashboard() {
               ))}
             </div>
 
-            {/* Quick Actions - Mobile Responsive */}
+            {/* Quick Actions - Role-based */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <Link
-                to="/create-request"
-                className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
-              >
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-2xl sm:text-3xl">🚛</div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold">Order New Truck</h3>
-                    <p className="text-blue-100 text-xs sm:text-sm">Book cargo transportation</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                to="/view-requests"
-                className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg"
-              >
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-2xl sm:text-3xl">📋</div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold">View Requests</h3>
-                    <p className="text-green-100 text-xs sm:text-sm">Check order status</p>
-                  </div>
-                </div>
-              </Link>
-
-              <Link
-                to="/manage-trucks"
-                className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg sm:col-span-2 lg:col-span-1"
-              >
-                <div className="flex items-center space-x-3 sm:space-x-4">
-                  <div className="text-2xl sm:text-3xl">🔧</div>
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold">Manage Fleet</h3>
-                    <p className="text-purple-100 text-xs sm:text-sm">Add or remove trucks</p>
-                  </div>
-                </div>
-              </Link>
+              {userRole === "customer" && (
+                <>
+                  <Link
+                    to="/create-request"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">🚛</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">Order Truck</h3>
+                        <p className="text-blue-100 text-xs sm:text-sm">Book cargo transportation</p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/view-requests"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">📋</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">My Orders</h3>
+                        <p className="text-green-100 text-xs sm:text-sm">Track deliveries</p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/subscription-plan"
+                    className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">💎</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">Subscription</h3>
+                        <p className="text-purple-100 text-xs sm:text-sm">Manage plan</p>
+                      </div>
+                    </div>
+                  </Link>
+                </>
+              )}
+              
+              {userRole === "driver" && (
+                <>
+                  <Link
+                    to="/manage-trucks"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">🚛</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">My Trucks</h3>
+                        <p className="text-blue-100 text-xs sm:text-sm">Add & manage trucks</p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/view-requests"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">📋</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">Available Jobs</h3>
+                        <p className="text-green-100 text-xs sm:text-sm">View delivery requests</p>
+                      </div>
+                    </div>
+                  </Link>
+                </>
+              )}
+              
+              {userRole === "logistics_manager" && (
+                <>
+                  <Link
+                    to="/create-request"
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 sm:p-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">🚛</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">Create Order</h3>
+                        <p className="text-blue-100 text-xs sm:text-sm">Book transportation</p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/view-requests"
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 sm:p-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">📋</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">All Requests</h3>
+                        <p className="text-green-100 text-xs sm:text-sm">Manage all orders</p>
+                      </div>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/manage-trucks"
+                    className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 sm:p-6 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg"
+                  >
+                    <div className="flex items-center space-x-3 sm:space-x-4">
+                      <div className="text-2xl sm:text-3xl">🔧</div>
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold">Fleet Management</h3>
+                        <p className="text-purple-100 text-xs sm:text-sm">Admin truck control</p>
+                      </div>
+                    </div>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Recent Activity - Mobile Responsive */}

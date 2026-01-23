@@ -345,8 +345,7 @@ function SignupForm({ navigate, setIsLogin }) {
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
           >
-            <option value="customer">Customer</option>
-            <option value="farmer">Farmer</option>
+            <option value="customer">Customer/Farmer</option>
             <option value="driver">Driver</option>
             <option value="logistics_manager">Logistics Manager</option>
           </select>
